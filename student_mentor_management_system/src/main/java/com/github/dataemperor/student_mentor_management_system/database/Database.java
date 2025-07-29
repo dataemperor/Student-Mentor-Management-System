@@ -2,6 +2,8 @@ package com.github.dataemperor.student_mentor_management_system.database;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
@@ -67,6 +69,29 @@ public class Database {
         try (Statement statement = connection.createStatement()) {
             statement.executeUpdate(sqlProgram);
             statement.executeUpdate(sqlStudent);
+
+            // populating the program table
+            String[][] programs = {
+                { "CM2601", "Object Orientated Development" },
+                { "CM2602", "Artificial Intelligence" },
+                { "CM2603", "Data Science Group Project" },
+                { "CM2604", "Machine Learning" },
+                { "CM2605", "Simulation and Modelling Techniques" },
+                { "CM2606", "Data Engineering" },
+                { "CM2607", "Advanced Mathematics for Data Science" },
+            };
+
+            PreparedStatement preparedStatement = connection.prepareStatement(
+                "INSERT OR IGNORE INTO PROGRAM (program_id, program_name) VALUES (?, ?)"
+            );
+
+            for (String[] program : programs) {
+                preparedStatement.setString(1, program[0]);
+                preparedStatement.setString(2, program[1]);
+                preparedStatement.executeUpdate();
+            }
+
+            preparedStatement.close();
         } catch (SQLException e) {
             System.err.println("SQLException: " + e.getMessage());
             System.exit(1);
