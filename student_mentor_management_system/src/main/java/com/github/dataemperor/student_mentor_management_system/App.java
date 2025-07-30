@@ -27,6 +27,7 @@ public class App {
         System.out.println("Enter program year");
         int programYear = scanner.nextInt();
         System.out.println("Enter password ");
-        int password = scanner.nextInt();
+        scanner.nextLine(); // to prevent scanner bug
+        String password = scanner.nextLine();
     }
 }
