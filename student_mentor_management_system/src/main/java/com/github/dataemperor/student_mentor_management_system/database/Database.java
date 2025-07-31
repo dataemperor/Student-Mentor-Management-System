@@ -61,7 +61,7 @@ public class Database {
             "CREATE TABLE IF NOT EXISTS PROGRAM (" +
             "program_id VARCHAR(10) UNIQUE NOT NULL," +
             "program_name VARCHAR(30) NOT NULL," +
-            "program_year INTEGER NOT NULL" +
+            "program_year INTEGER NOT NULL," +
             "PRIMARY KEY (program_id)" +
             " )";
         String sqlStudent =
@@ -71,14 +71,14 @@ public class Database {
             "middle_name VARCHAR(30)," +
             "last_name VARCHAR(30) NOT NULL," +
             "email VARCHAR(60) NOT NULL," +
-            "phone_number VARCHAR(12) UNIQUE," +
+            "contact_number VARCHAR(12) UNIQUE," +
             "home_number VARCHAR(12) NOT NULL," +
-            "year VARCHAR(1) NOT NULL," +
-            "password VARCHAR(12) NOT NULL UNIQUE," +
-            "program_id VARCHAR(10) NOT NULL," +
             "is_mentored BOOLEAN NOT NULL," +
+            "password VARCHAR(12) NOT NULL," +
+            "program_id VARCHAR(10) NOT NULL," +
+            "PRIMARY KEY (student_id)," +
             "FOREIGN KEY (program_id) REFERENCES PROGRAM(program_id)" +
-            " )";
+            ")";
 
         try (Statement statement = connection.createStatement()) {
             statement.executeUpdate(sqlProgram);
@@ -170,7 +170,7 @@ public class Database {
     // checks if the phone number is in the database
     public boolean validatePhoneNumber(String phoneNumber) throws SQLException {
         String selectPhoneNumberQuery =
-            "SELECT COUNT(*) FROM STUDENT WHERE phone_number = ?";
+            "SELECT COUNT(*) FROM STUDENT WHERE contact_number = ?";
 
         try (
             PreparedStatement preparedStatement = connection.prepareStatement(
@@ -210,28 +210,49 @@ public class Database {
     }
 
     public void insertStudent(Student student) throws SQLException {
+        String insertProgramQuery =
+            "INSERT INTO PROGRAM (" +
+            "program_id, program_name, program_year" +
+            ") VALUES (?, ?, ?);";
+
+        try (
+            PreparedStatement preparedStatement = connection.prepareStatement(
+                insertProgramQuery
+            );
+        ) {
+            preparedStatement.setString(1, student.getProgram().getProgramId());
+            preparedStatement.setString(
+                2,
+                student.getProgram().getProgramName()
+            );
+            preparedStatement.setInt(3, student.getProgram().getProgramYear());
+            preparedStatement.executeUpdate();
+        }
         String insertStudentQuery =
             "INSERT INTO STUDENT (" +
-            "first_name, middle_name, last_name," +
-            "email, phone_number, home_number" +
-            "year, password, program_id" +
-            ") VALUES (?, ?, ?, ?, ?, ?, ?,?, ?);";
+            "student_id, first_name, middle_name, last_name," +
+            "email, contact_number, home_number," +
+            "is_mentored, password, program_id" +
+            ") VALUES (?, ?, ?, ?, ?, ?, ?,?, ?, ?);";
 
         try (
             PreparedStatement preparedStatement = connection.prepareStatement(
                 insertStudentQuery
             );
         ) {
-            preparedStatement.setString(1, student.getFirstName());
-            preparedStatement.setString(2, student.getMiddleName());
-            preparedStatement.setString(3, student.getLastName());
-            preparedStatement.setString(4, student.getEmailAddress());
-            preparedStatement.setString(5, student.getContactNumber());
-            preparedStatement.setString(6, student.getHomeNumber());
-            preparedStatement.setInt(7, student.getProgram().getProgramYear());
-            preparedStatement.setString(8, student.getPassword());
-            preparedStatement.setString(9, student.getProgram().getProgramId());
-
+            preparedStatement.setString(1, student.getStudentId());
+            preparedStatement.setString(2, student.getFirstName());
+            preparedStatement.setString(3, student.getMiddleName());
+            preparedStatement.setString(4, student.getLastName());
+            preparedStatement.setString(5, student.getEmailAddress());
+            preparedStatement.setString(6, student.getContactNumber());
+            preparedStatement.setString(7, student.getHomeNumber());
+            preparedStatement.setBoolean(8, student.getIsMentored());
+            preparedStatement.setString(9, student.getPassword());
+            preparedStatement.setString(
+                10,
+                student.getProgram().getProgramId()
+            );
             preparedStatement.executeUpdate();
         }
     }
