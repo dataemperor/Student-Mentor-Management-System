@@ -19,4 +19,8 @@ public class Program {
     public String getProgramName() {
         return programName;
     }
+
+    public int getProgramYear() {
+        return programYear;
+    }
 }
