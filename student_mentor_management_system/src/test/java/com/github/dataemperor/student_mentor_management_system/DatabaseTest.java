@@ -125,4 +125,19 @@ public class DatabaseTest {
             "Password shouldn't be in database"
         );
     }
+
+    @Test
+    void NullStudentIdInsert() {
+        Student nullIdStudent = getSampleStudent();
+        nullIdStudent.setStudentId(null);
+        SQLException thrown = assertThrows(
+            SQLException.class,
+            () -> database.insertStudent(nullIdStudent),
+            "Throws null student ID SQLException"
+        );
+        assertTrue(
+            thrown.getMessage().contains("NOT NULL constraint failed"),
+            "NOT NULL constraint"
+        );
+    }
 }
