@@ -37,6 +37,18 @@ public class Student {
         this.programId = programId;
     }
 
+    public void setStudentId(String studentId) {
+        this.studentId = studentId;
+    }
+
+    public void setMentored(boolean isMentored) {
+        this.isMentored = isMentored;
+    }
+
+    public void setProgramId(String programId) {
+        this.programId = programId;
+    }
+
     public String getProgramId() {
         return this.programId;
     }
