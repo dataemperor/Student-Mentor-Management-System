@@ -11,7 +11,7 @@ public class Student {
     private String homeNumber;
     private boolean isMentored;
     private String password;
-    private Program studentProgram;
+    private String programId;
 
     public Student(
         String studentId,
@@ -23,7 +23,7 @@ public class Student {
         String homeNumber,
         boolean isMentored,
         String password,
-        Program program
+        String programId
     ) {
         this.studentId = studentId;
         this.firstName = firstName;
@@ -34,11 +34,23 @@ public class Student {
         this.homeNumber = homeNumber;
         this.isMentored = isMentored;
         this.password = password;
-        studentProgram = program;
+        this.programId = programId;
     }
 
-    public Program getProgram() {
-        return studentProgram;
+    public void setStudentId(String studentId) {
+        this.studentId = studentId;
+    }
+
+    public void setMentored(boolean isMentored) {
+        this.isMentored = isMentored;
+    }
+
+    public void setProgramId(String programId) {
+        this.programId = programId;
+    }
+
+    public String getProgramId() {
+        return this.programId;
     }
 
     public void setFirstName(String firstName) {

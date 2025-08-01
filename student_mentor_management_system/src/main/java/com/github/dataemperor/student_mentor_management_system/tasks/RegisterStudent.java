@@ -14,7 +14,7 @@ public class RegisterStudent implements Runnable {
     private final String phoneNumber;
     private final String homeNumber;
     private final boolean isMentored;
-    private final Program program;
+    private final String programId;
     private final String password;
 
     private final Database database;
@@ -28,7 +28,7 @@ public class RegisterStudent implements Runnable {
         String phoneNumber,
         String homeNumber,
         boolean isMentored,
-        Program program,
+        String programId,
         String password,
         Database database
     ) {
@@ -40,7 +40,7 @@ public class RegisterStudent implements Runnable {
         this.phoneNumber = phoneNumber;
         this.homeNumber = homeNumber;
         this.isMentored = false;
-        this.program = program;
+        this.programId = programId;
         this.password = password;
         this.database = database;
     }
@@ -64,7 +64,7 @@ public class RegisterStudent implements Runnable {
                 return;
             }
 
-            if (database.validateProgram(program)) {
+            if (database.validateProgram(programId)) {
                 System.out.println("Program is invalid");
                 return;
             }
@@ -96,7 +96,7 @@ public class RegisterStudent implements Runnable {
                 homeNumber,
                 isMentored,
                 password,
-                program
+                programId
             );
 
             database.insertStudent(newStudent);

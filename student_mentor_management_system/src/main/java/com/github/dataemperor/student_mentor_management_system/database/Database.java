@@ -13,13 +13,13 @@ public class Database {
 
     private Connection connection = null;
     String[][] programs = {
-        { "CM2601", "Object Orientated Development" },
-        { "CM2602", "Artificial Intelligence" },
-        { "CM2603", "Data Science Group Project" },
-        { "CM2604", "Machine Learning" },
-        { "CM2605", "Simulation and Modelling Techniques" },
-        { "CM2606", "Data Engineering" },
-        { "CM2607", "Advanced Mathematics for Data Science" },
+        { "CM2601", "Object Orientated Development", "2" },
+        { "CM2602", "Artificial Intelligence", "2" },
+        { "CM2603", "Data Science Group Project", "2" },
+        { "CM2604", "Machine Learning", "2" },
+        { "CM2605", "Simulation and Modelling Techniques", "2" },
+        { "CM2606", "Data Engineering", "2" },
+        { "CM2607", "Advanced Mathematics for Data Science", "2" },
     };
 
     public Database() {
@@ -28,6 +28,26 @@ public class Database {
             connection = DriverManager.getConnection(
                 "jdbc:sqlite:ManagementSystemDatabase.db"
             );
+            try (Statement statement = connection.createStatement()) {
+                statement.execute("PRAGMA foreign_keys = ON;");
+            }
+        } catch (SQLException e) {
+            System.err.println("SQLException: " + e.getMessage());
+            System.exit(1);
+        } catch (ClassNotFoundException e) {
+            System.err.println("ClassNotFoundException: " + e.getMessage());
+            System.exit(1);
+        } catch (Exception e) {
+            System.err.println("Exception: " + e.getMessage());
+            System.exit(1);
+        }
+    }
+
+    // to allow testing on a different database
+    public Database(String name) {
+        try {
+            Class.forName("org.sqlite.JDBC");
+            connection = DriverManager.getConnection("jdbc:sqlite:" + name);
             try (Statement statement = connection.createStatement()) {
                 statement.execute("PRAGMA foreign_keys = ON;");
             }
@@ -59,7 +79,7 @@ public class Database {
         }
         String sqlProgram =
             "CREATE TABLE IF NOT EXISTS PROGRAM (" +
-            "program_id VARCHAR(10) UNIQUE NOT NULL," +
+            "program_id VARCHAR(10) NOT NULL," +
             "program_name VARCHAR(30) NOT NULL," +
             "program_year INTEGER NOT NULL," +
             "PRIMARY KEY (program_id)" +
@@ -80,9 +100,26 @@ public class Database {
             "FOREIGN KEY (program_id) REFERENCES PROGRAM(program_id)" +
             ")";
 
+        String insertProgramsQuery =
+            "INSERT OR IGNORE INTO PROGRAM (" +
+            "program_id, program_name, program_year" +
+            ") VALUES (?, ?, ?);";
+
         try (Statement statement = connection.createStatement()) {
             statement.executeUpdate(sqlProgram);
             statement.executeUpdate(sqlStudent);
+
+            try (
+                PreparedStatement preparedStatement =
+                    connection.prepareStatement(insertProgramsQuery)
+            ) {
+                for (String[] program : programs) {
+                    preparedStatement.setString(1, program[0]);
+                    preparedStatement.setString(2, program[1]);
+                    preparedStatement.setInt(3, Integer.parseInt(program[2]));
+                    preparedStatement.executeUpdate();
+                }
+            }
         } catch (SQLException e) {
             System.err.println("SQLException: " + e.getMessage());
             System.exit(1);
@@ -138,33 +175,17 @@ public class Database {
     }
 
     // validates program id, name and year
-    public boolean validateProgram(Program program) {
-        String programId = program.getProgramId();
-        String programName = program.getProgramName();
-        int programYear = program.getProgramYear();
-        boolean validProgramId = false;
-        boolean validProgramName = false;
-        boolean validProgramYear = false;
+    public boolean validateProgram(String programId) {
+        boolean invalidProgramId = true;
 
         for (String[] presetProgram : programs) {
-            if (presetProgram[0] == programId) {
-                validProgramId = true;
-            }
-
-            if (presetProgram[1] == programName) {
-                validProgramName = true;
-            }
-
-            if (programYear > 0 && programYear < 5) {
-                validProgramYear = true;
+            if (programId.equals(presetProgram[0])) {
+                invalidProgramId = false;
+                break;
             }
         }
 
-        if (validProgramId && validProgramName && validProgramYear) {
-            return true;
-        }
-
-        return false;
+        return invalidProgramId;
     }
 
     // checks if the phone number is in the database
@@ -210,24 +231,6 @@ public class Database {
     }
 
     public void insertStudent(Student student) throws SQLException {
-        String insertProgramQuery =
-            "INSERT INTO PROGRAM (" +
-            "program_id, program_name, program_year" +
-            ") VALUES (?, ?, ?);";
-
-        try (
-            PreparedStatement preparedStatement = connection.prepareStatement(
-                insertProgramQuery
-            );
-        ) {
-            preparedStatement.setString(1, student.getProgram().getProgramId());
-            preparedStatement.setString(
-                2,
-                student.getProgram().getProgramName()
-            );
-            preparedStatement.setInt(3, student.getProgram().getProgramYear());
-            preparedStatement.executeUpdate();
-        }
         String insertStudentQuery =
             "INSERT INTO STUDENT (" +
             "student_id, first_name, middle_name, last_name," +
@@ -249,10 +252,7 @@ public class Database {
             preparedStatement.setString(7, student.getHomeNumber());
             preparedStatement.setBoolean(8, student.getIsMentored());
             preparedStatement.setString(9, student.getPassword());
-            preparedStatement.setString(
-                10,
-                student.getProgram().getProgramId()
-            );
+            preparedStatement.setString(10, student.getProgramId());
             preparedStatement.executeUpdate();
         }
     }

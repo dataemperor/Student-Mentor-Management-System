@@ -31,19 +31,10 @@ public class App {
         String homeNumber = scanner.nextLine().toLowerCase();
         System.out.println("Enter program id");
         String programId = scanner.nextLine().toLowerCase();
-        System.out.println("Enter program name");
-        String programName = scanner.nextLine().toLowerCase();
-        System.out.println("Enter program year");
-        int programYear = scanner.nextInt();
         System.out.println("Enter password ");
         scanner.nextLine(); // to prevent scanner bug
         String password = scanner.nextLine().toLowerCase();
 
-        Program studentProgram = new Program(
-            programId,
-            programName,
-            programYear
-        );
         Boolean isMentored = false;
 
         RegisterStudent registerNewStudent = new RegisterStudent(
@@ -55,7 +46,7 @@ public class App {
             contactNumber,
             homeNumber,
             isMentored,
-            studentProgram,
+            programId,
             password,
             database
         );
